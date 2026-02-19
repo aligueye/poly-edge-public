@@ -1,0 +1,56 @@
+groups:
+  - name: poly-edge
+    rules:
+      - alert: DailyLossExceeded
+        expr: polyedge_pnl_realized{strategy="directional"} + polyedge_pnl_realized{strategy="market_maker"} < -25
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Daily loss limit breached"
+          description: "Combined realized PnL is {{ $value | printf \"%.2f\" }} USDC"
+
+      - alert: WebSocketDisconnected
+        expr: polyedge_ws_connected == 0
+        for: 15s
+        labels:
+          severity: warning
+        annotations:
+          summary: "WebSocket disconnected: {{ $labels.source }}"
+          description: "{{ $labels.source }} has been disconnected for >15s"
+
+      - alert: HighOrderLatency
+        expr: histogram_quantile(0.99, rate(polyedge_order_latency_seconds_bucket[5m])) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "p99 order latency above 500ms"
+          description: "p99 latency is {{ $value | printf \"%.3f\" }}s for {{ $labels.strategy }}"
+
+      - alert: HighExposure
+        expr: sum(polyedge_position_exposure) > 600
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Total exposure exceeds 60% of bankroll"
+          description: "Current total exposure: ${{ $value | printf \"%.2f\" }}"
+
+      - alert: DirectionalAccuracyLow
+        expr: polyedge_directional_accuracy < 0.50
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Directional accuracy below 50%"
+          description: "Rolling accuracy is {{ $value | printf \"%.1f\" }}%"
+
+      - alert: HighDrawdown
+        expr: polyedge_drawdown_current > 0.025
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Drawdown exceeds 2.5%"
+          description: "Current drawdown: {{ $value | printf \"%.2f\" }}%"

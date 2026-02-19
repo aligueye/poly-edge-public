@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package polyedge;
+
+option go_package = "github.com/ali/poly-edge/internal/grpc/proto";
+
+service SignalService {
+  rpc GetSignal (MarketState) returns (Signal);
+}
+
+message MarketState {
+  double btc_price = 1;
+  double window_open_price = 2;
+  double seconds_remaining = 3;
+  double polymarket_yes_price = 4;
+  double polymarket_no_price = 5;
+  double dvol = 6;
+  repeated double binance_bids = 7;     // flattened: [price, qty, price, qty, ...]
+  repeated double binance_asks = 8;
+  repeated AggTrade recent_trades = 9;
+  repeated Liquidation recent_liquidations = 10;
+  double funding_rate = 11;
+  // Pre-computed TA from Go
+  double rsi_7 = 12;
+  double rsi_14 = 13;
+  double rsi_30 = 14;
+  double macd_signal = 15;
+  double stoch_k = 16;
+  double momentum_30s = 17;
+  double momentum_60s = 18;
+  double momentum_120s = 19;
+  double ema_9_vs_21 = 20;
+  double atr_14 = 21;
+  double bollinger_pct_b = 22;
+  double hourly_trend = 23;
+}
+
+message AggTrade {
+  double price = 1;
+  double quantity = 2;
+  bool is_buyer_maker = 3;
+  int64 timestamp_ms = 4;
+}
+
+message Liquidation {
+  string side = 1;
+  double quantity = 2;
+  double price = 3;
+  int64 timestamp_ms = 4;
+}
+
+message Signal {
+  string action = 1;          // "buy_yes", "buy_no", "hold"
+  double confidence = 2;      // 0.0-1.0
+  double suggested_price = 3;
+  double suggested_size = 4;
+}

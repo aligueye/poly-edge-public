@@ -1,0 +1,33 @@
+# Go
+/poly-edge
+/cmd/poly-edge/poly-edge
+*.exe
+*.test
+*.out
+
+# Environment
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+
+# Training data & logs
+data/
+logs/
+
+# Models
+*.cbm
+catboost_info/
+
+# Dependencies
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
